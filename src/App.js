@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import Square from "./Square";
 const INTERVAL = 100;
-const NUMCOLUMNS = 10;
-const NUMROWS = 10;
 
 const App = () => {
   const [isRunning, setIsRunning] = useState(false);
+  const [size, setSize] = useState({ numRows: 5, numColumns: 10 });
   const [livings, setLivings] = useState(
-    Array(NUMROWS).fill(Array(NUMCOLUMNS).fill(false))
+    Array(size.numRows).fill(Array(size.numColumns).fill(false))
   );
 
   const start = () => {
@@ -22,8 +21,8 @@ const App = () => {
 
   const tick = () => {
     const newLivings = livings.map(row => [...row]);
-    for (let x = 0; x < NUMCOLUMNS; x++) {
-      for (let y = 0; y < NUMROWS; y++) {
+    for (let x = 0; x < size.numColumns; x++) {
+      for (let y = 0; y < size.numRows; y++) {
         let isLiving = livings[y][x];
         const neighboursCoors = getNeighbours([x, y]);
         const living = countLiving(neighboursCoors);
@@ -46,10 +45,10 @@ const App = () => {
   };
 
   const getNeighbours = ([x, y]) => {
-    const xLeft = (x + NUMCOLUMNS - 1) % NUMCOLUMNS;
-    const xRight = (x + 1) % NUMCOLUMNS;
-    const yUp = (y + NUMROWS - 1) % NUMROWS;
-    const yDown = (y + 1) % NUMROWS;
+    const xLeft = (x + size.numColumns - 1) % size.numColumns;
+    const xRight = (x + 1) % size.numColumns;
+    const yUp = (y + size.numRows - 1) % size.numRows;
+    const yDown = (y + 1) % size.numRows;
     return [
       [xLeft, yUp],
       [x, yUp],
@@ -68,6 +67,16 @@ const App = () => {
       0
     );
   };
+
+  const changeSize = e => {
+    const number = parseInt(e.target.value, 10);
+    const newSize = isNaN(number) ? 1 : number;
+    setSize({ ...size, [e.target.name]: newSize });
+  };
+
+  useEffect(() => {
+    setLivings(Array(size.numRows).fill(Array(size.numColumns).fill(false)));
+  }, [size]);
 
   return (
     <div>
@@ -88,6 +97,8 @@ const App = () => {
       <button onClick={start}> Start </button>
       <button onClick={tick}> Tick </button>
       <button onClick={stop}> Stop </button>
+      <input name="numRows" onChange={changeSize}></input>
+      <input name="numColumns" onChange={changeSize}></input>
     </div>
   );
 };
