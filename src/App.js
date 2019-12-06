@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import Square from "./Square";
-const INTERVAL = 100;
 
 const App = () => {
+  const [interval, setInterval] = useState(1000);
   const [isRunning, setIsRunning] = useState(false);
   const [size, setSize] = useState({ numRows: 5, numColumns: 10 });
   const [livings, setLivings] = useState(
@@ -13,6 +13,12 @@ const App = () => {
     const number = parseInt(e.target.value, 10);
     const newSize = isNaN(number) ? 1 : number;
     setSize({ ...size, [e.target.name]: newSize });
+  };
+
+  const changeInterval = e => {
+    const number = parseInt(e.target.value, 10);
+    const newInterval = isNaN(number) ? 1 : number;
+    setInterval(newInterval);
   };
 
   useEffect(() => {
@@ -27,7 +33,7 @@ const App = () => {
     setIsRunning(false);
   };
 
-  useInterval(() => tick(), isRunning ? INTERVAL : null);
+  useInterval(() => tick(), isRunning ? interval : null);
 
   const tick = () => {
     const newLivings = livings.map(row => [...row]);
@@ -80,11 +86,30 @@ const App = () => {
 
   const buttons = [
     { name: "START", text: "Start", function: start },
-    { name: "TICK", text: "Tick", function: tick },
+    { name: "TICK", text: "Single tick", function: tick },
     { name: "STOP", text: "Stop", function: stop }
   ];
 
-  const inputs = [{ name: "numRows" }, { name: "numColumns" }];
+  const inputs = [
+    {
+      name: "numColumns",
+      text: "Number of Columns",
+      function: changeSize,
+      initialValue: size.numColumns
+    },
+    {
+      name: "numRows",
+      text: "Number of Rows",
+      function: changeSize,
+      initialValue: size.numRows
+    },
+    {
+      name: "interval",
+      text: "Gap between ticks (milliseconds)",
+      function: changeInterval,
+      initialValue: interval
+    }
+  ];
 
   return (
     <div>
@@ -109,7 +134,12 @@ const App = () => {
         </button>
       ))}
       {inputs.map(input => (
-        <input name={input.name} key={input.name} onChange={changeSize}></input>
+        <input
+          name={input.name}
+          key={input.name}
+          onChange={input.function}
+          value={input.initialValue}
+        />
       ))}
     </div>
   );
