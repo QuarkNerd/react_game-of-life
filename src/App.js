@@ -9,6 +9,16 @@ const App = () => {
     Array(size.numRows).fill(Array(size.numColumns).fill(false))
   );
 
+  const changeSize = e => {
+    const number = parseInt(e.target.value, 10);
+    const newSize = isNaN(number) ? 1 : number;
+    setSize({ ...size, [e.target.name]: newSize });
+  };
+
+  useEffect(() => {
+    setLivings(Array(size.numRows).fill(Array(size.numColumns).fill(false)));
+  }, [size]);
+
   const start = () => {
     setIsRunning(true);
   };
@@ -68,37 +78,39 @@ const App = () => {
     );
   };
 
-  const changeSize = e => {
-    const number = parseInt(e.target.value, 10);
-    const newSize = isNaN(number) ? 1 : number;
-    setSize({ ...size, [e.target.name]: newSize });
-  };
+  const buttons = [
+    { name: "START", text: "Start", function: start },
+    { name: "TICK", text: "Tick", function: tick },
+    { name: "STOP", text: "Stop", function: stop }
+  ];
 
-  useEffect(() => {
-    setLivings(Array(size.numRows).fill(Array(size.numColumns).fill(false)));
-  }, [size]);
+  const inputs = [{ name: "numRows" }, { name: "numColumns" }];
 
   return (
     <div>
       <div>
         {livings.map((row, yValue) => (
-          <div class="row">
+          <div className="row" key={yValue}>
             {row.map((isLiving, xValue) => (
               <Square
                 x={xValue}
                 y={yValue}
                 selected={isLiving}
                 onClick={changeSquare}
+                key={xValue + yValue * size.numRows}
               />
             ))}
           </div>
         ))}
       </div>
-      <button onClick={start}> Start </button>
-      <button onClick={tick}> Tick </button>
-      <button onClick={stop}> Stop </button>
-      <input name="numRows" onChange={changeSize}></input>
-      <input name="numColumns" onChange={changeSize}></input>
+      {buttons.map(button => (
+        <button key={button.name} onClick={button.function}>
+          {button.text}
+        </button>
+      ))}
+      {inputs.map(input => (
+        <input name={input.name} key={input.name} onChange={changeSize}></input>
+      ))}
     </div>
   );
 };
