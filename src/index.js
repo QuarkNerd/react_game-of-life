@@ -5,5 +5,5 @@ import App from "./App";
 import registerServiceWorker from "./registerServiceWorker";
 
 const rootElement = document.getElementById("root");
-ReactDOM.render(<App numRows={20} numColumns={20} />, rootElement);
+ReactDOM.render(<App />, rootElement);
 registerServiceWorker();

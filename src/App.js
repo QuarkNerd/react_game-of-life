@@ -1,10 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import Square from "./Square";
 const INTERVAL = 100;
+const NUMCOLUMNS = 10;
+const NUMROWS = 10;
 
-const App = props => {
+const App = () => {
   const [isRunning, setIsRunning] = useState(false);
-  const [livings, setLivings] = useState({});
+  const [livings, setLivings] = useState(
+    Array(NUMROWS).fill(Array(NUMCOLUMNS).fill(false))
+  );
 
   const start = () => {
     setIsRunning(true);
@@ -17,43 +21,35 @@ const App = props => {
   useInterval(() => tick(), isRunning ? INTERVAL : null);
 
   const tick = () => {
-    const newState = {};
-
-    for (let ii = 0; ii < props.numColumns * props.numRows; ii++) {
-      let isLiving = livings[ii];
-      const coordinates = convertNumberToCoordinates(ii);
-      const neighboursCoors = getNeighbours(coordinates);
-      const neighbours = neighboursCoors.map(coors =>
-        convertCoordinatesToNumber(coors)
-      );
-      const living = countLiving(neighbours);
-
-      if (living <= 1 || living > 3) {
-        isLiving = false;
-      } else if (living === 3) {
-        isLiving = true;
+    const newLivings = livings.map(row => [...row]);
+    for (let x = 0; x < NUMCOLUMNS; x++) {
+      for (let y = 0; y < NUMROWS; y++) {
+        let isLiving = livings[y][x];
+        const neighboursCoors = getNeighbours([x, y]);
+        const living = countLiving(neighboursCoors);
+        if (living <= 1 || living > 3) {
+          isLiving = false;
+        } else if (living === 3) {
+          isLiving = true;
+        }
+        newLivings[y][x] = isLiving;
       }
-
-      newState[ii] = isLiving;
     }
-    setLivings(newState);
+
+    setLivings(newLivings);
   };
 
-  const changeSquare = position => {
-    setLivings({ ...livings, [position]: !livings[position] });
-  };
-
-  const convertNumberToCoordinates = number => {
-    const x = number % props.numColumns;
-    const y = Math.floor(number / props.numColumns);
-    return [x, y];
+  const changeSquare = ([x, y]) => {
+    const newLivings = livings.map(row => [...row]);
+    newLivings[y][x] = !newLivings[y][x];
+    setLivings(newLivings);
   };
 
   const getNeighbours = ([x, y]) => {
-    const xLeft = (x + props.numColumns - 1) % props.numColumns;
-    const xRight = (x + 1) % props.numColumns;
-    const yUp = (y + props.numRows - 1) % props.numRows;
-    const yDown = (y + 1) % props.numRows;
+    const xLeft = (x + NUMCOLUMNS - 1) % NUMCOLUMNS;
+    const xRight = (x + 1) % NUMCOLUMNS;
+    const yUp = (y + NUMROWS - 1) % NUMROWS;
+    const yDown = (y + 1) % NUMROWS;
     return [
       [xLeft, yUp],
       [x, yUp],
@@ -66,13 +62,9 @@ const App = props => {
     ];
   };
 
-  const convertCoordinatesToNumber = ([x, y]) => {
-    return y * props.numColumns + x;
-  };
-
-  const countLiving = numbers => {
-    return numbers.reduce(
-      (total, number) => total + (livings[number] ? 1 : 0),
+  const countLiving = coordinates => {
+    return coordinates.reduce(
+      (total, [x, y]) => total + (livings[y][x] ? 1 : 0),
       0
     );
   };
@@ -80,17 +72,16 @@ const App = props => {
   return (
     <div>
       <div>
-        {Array.apply(null, { length: props.numRows }).map((a, rowNum) => (
+        {livings.map((row, yValue) => (
           <div class="row">
-            {Array.apply(null, { length: props.numColumns }).map(
-              (a, columnNum) => (
-                <Square
-                  number={rowNum * props.numColumns + columnNum}
-                  selected={livings[rowNum * props.numColumns + columnNum]}
-                  onClick={changeSquare}
-                />
-              )
-            )}
+            {row.map((isLiving, xValue) => (
+              <Square
+                x={xValue}
+                y={yValue}
+                selected={isLiving}
+                onClick={changeSquare}
+              />
+            ))}
           </div>
         ))}
       </div>
