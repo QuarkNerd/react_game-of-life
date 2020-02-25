@@ -1,1 +1,1 @@
-Simple react app of conways game of life
+Simple react app of conway's game of life
