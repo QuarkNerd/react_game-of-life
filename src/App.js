@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useInterval, formatInput } from './utilities.js'
 import Square from "./Square";
 
 const App = () => {
@@ -10,14 +11,12 @@ const App = () => {
   );
 
   const changeSize = e => {
-    const number = parseInt(e.target.value, 10);
-    const newSize = isNaN(number) ? 1 : number;
+    const newSize = formatInput(e.target.value);
     setSize({ ...size, [e.target.name]: newSize });
   };
 
   const changeInterval = e => {
-    const number = parseInt(e.target.value, 10);
-    const newInterval = isNaN(number) ? 1 : number;
+    const newInterval = formatInput(e.target.value);
     setInterval(newInterval);
   };
 
@@ -95,25 +94,43 @@ const App = () => {
       name: "numColumns",
       text: "Number of Columns",
       function: changeSize,
-      initialValue: size.numColumns
+      value: size.numColumns,
+      maxValue:100
     },
     {
       name: "numRows",
       text: "Number of Rows",
       function: changeSize,
-      initialValue: size.numRows
+      value: size.numRows,
+      maxValue: 100
     },
     {
       name: "interval",
-      text: "Gap between ticks (milliseconds)",
+      text: "Gap between ticks (ms)",
       function: changeInterval,
-      initialValue: interval
+      value: interval,
+      maxValue: 1000
     }
   ];
 
   return (
     <div>
-      <div>
+      <div className="inputHolder">
+        {inputs.map(input => (
+          <label className="field" key={input.name}>
+            {input.text}: {input.value}
+            <input
+              name={input.name}
+              onChange={input.function}
+              value={input.value}
+              type="range"
+              min="1"
+              max={input.maxValue}
+            />
+          </label>
+        ))}
+      </div>
+      <div className="board">
         {livings.map((row, yValue) => (
           <div className="row" key={yValue}>
             {row.map((isLiving, xValue) => (
@@ -133,35 +150,8 @@ const App = () => {
           {button.text}
         </button>
       ))}
-      {inputs.map(input => (
-        <input
-          name={input.name}
-          key={input.name}
-          onChange={input.function}
-          value={input.initialValue}
-        />
-      ))}
     </div>
   );
 };
 
 export default App;
-// React doesnt work well with setInterval, see this link for more detais
-//https://overreacted.io/making-setinterval-declarative-with-react-hooks/
-function useInterval(callback, delay) {
-  const savedCallback = useRef();
-
-  useEffect(() => {
-    savedCallback.current = callback;
-  }, [callback]);
-
-  useEffect(() => {
-    function tick() {
-      savedCallback.current();
-    }
-    if (delay !== null) {
-      let id = setInterval(tick, delay);
-      return () => clearInterval(id);
-    }
-  }, [delay]);
-}
