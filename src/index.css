@@ -30,5 +30,9 @@ body {
 }
 
 .board {
-  margin-bottom: 10px;
+  margin-left: 1px;
+}
+
+.button {
+  margin: 5px 1px;
 }

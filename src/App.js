@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useInterval, formatInput } from './utilities.js'
 import Square from "./Square";
 
@@ -130,6 +130,11 @@ const App = () => {
           </label>
         ))}
       </div>
+      {buttons.map(button => (
+        <button className="button" key={button.name} onClick={button.function}>
+          {button.text}
+        </button>
+      ))}
       <div className="board">
         {livings.map((row, yValue) => (
           <div className="row" key={yValue}>
@@ -145,11 +150,6 @@ const App = () => {
           </div>
         ))}
       </div>
-      {buttons.map(button => (
-        <button key={button.name} onClick={button.function}>
-          {button.text}
-        </button>
-      ))}
     </div>
   );
 };
